@@ -1,14 +1,11 @@
 <?php
 
-//Устанавливаем кодировку и вывод всех ошибок
+//Задаем кодировку UTF-8 и вывод всех ошибок
 header('Content-Type: text/html; charset=UTF-8');
 error_reporting(E_ALL);
 
 //Создаем подключение к БД
 $mysqli = new mysqli('localhost', 'root', '', 'cars');
-
-//Устанавливаем кодировку utf8
-$mysqli->query("SET NAMES 'utf8'");
 
 //В случае неудачного подключения к БД выводим ошибку и завершаем работу скрипта
 if ($mysqli->connect_error) {
@@ -21,14 +18,14 @@ function getCategory($mysqli){
     $res = $mysqli->query($sql);
 
 //Создаем масив где ключ массива является ID меню
-$cat = array();
+$category = array();
 while($row = $res -> fetch_assoc()){
-    $cat[$row['id']] = $row;
+    $category[$row['id']] = $row;
 }
-    return $cat;
+    return $category;
 }
 
-//Функция построения дерева из массива от Tommy Lacroix
+//Функция построения дерева из массива
 function getTree($dataset) {
     $tree = array();
 
@@ -44,14 +41,14 @@ function getTree($dataset) {
     return $tree;
 }
 
-//Получаем подготовленный массив с данными
+//Записываем подготовленный массив с данными
 $cat  = getCategory($mysqli);
 
 //Создаем древовидное меню
 $tree = getTree($cat);
 
 //Шаблон для вывода меню в виде дерева
-function tplMenu($category){
+function treeMenu($category){
     $menu = '<li>
 		<a href="#" title="'. $category['name'] .'">'.
         $category['name'].'</a>';
@@ -64,21 +61,18 @@ function tplMenu($category){
     return $menu;
 }
 
-/**
- * Рекурсивно считываем наш шаблон
- **/
+//Рекурсивно считываем шаблон
 function showCategory($data){
     $string = '';
     foreach($data as $item){
-        $string .= tplMenu($item);
+        $string .= treeMenu($item);
     }
     return $string;
 }
 
 //Получаем HTML разметку
-$cat_menu = showCategory($tree);
+$category_menu = showCategory($tree);
 
-//Выводим на экран
-echo '<ul>'. $cat_menu .'</ul>';
+//Выводим в браузер
+echo '<ul>'. $category_menu .'</ul>';
 
-?>
